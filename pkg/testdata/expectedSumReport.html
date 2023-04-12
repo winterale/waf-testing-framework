@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
+    <TITLE>WAF Testing report</TITLE>
+    <style>
+        body {
+            min-width: 1000px;
+        }
+
+        .container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .report-header h1 {
+            font-size: 36px;
+        }
+
+        .scan-time {
+            text-align: right;
+        }
+
+        .results {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+        }
+
+        .result {
+            width: 47%;
+            border: 1px solid black;
+            border-radius: 10px;
+            padding: 5px 10px;
+            margin: 5px;
+        }
+
+        .result-title {
+            margin: 10px auto;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .result-summary {
+            display: flex;
+        }
+
+        .chart {
+            width: 85%;
+            height: 100%;
+            margin: 0 20px;
+        }
+
+        .chart-title {
+            width: 100%;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .chart-graph {
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(200, 200, 200, 0.8);
+        }
+
+        .chart-lines {
+            height: 100%;
+            width: 100%;
+            z-index: -1;
+            position: absolute;
+        }
+
+        .chart-line {
+            height: inherit;
+            width: 1px;
+            position: absolute;
+            background: rgba(200, 200, 200, 0.8);
+        }
+
+        .chart-line.l-0 {
+            left: 0%;
+        }
+
+        .chart-line.l-20 {
+            left: 20%;
+        }
+
+        .chart-line.l-40 {
+            left: 40%;
+        }
+
+        .chart-line.l-60 {
+            left: 60%;
+        }
+
+        .chart-line.l-80 {
+            left: 80%;
+        }
+
+        .chart-line.l-100 {
+            left: 100%;
+        }
+
+        .chart-line-label {
+            display: block;
+            width: 100px;
+            text-align: center;
+            position: absolute;
+            bottom: -20px;
+            right: -50px;
+        }
+
+        .chart-bar-label {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chart-bar {
+            height: 30px;
+            margin-bottom: 10px;
+            background: linear-gradient(to left, #3d3d3d, #4d4d4d);
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chart-bar-title {
+            text-align: left;
+            padding: 2px 10px;
+        }
+
+        .chart-bar-metric {
+            text-align: right;
+            padding: 2px 10px;
+        }
+
+        .chart-text {
+            margin-top: 30px;
+        }
+
+        .chart-text p {
+            font-size: 17px;
+            margin: 2px 0;
+            color: rgba(10, 10, 10, 0.7);
+        }
+
+        .grade {
+            width: 15%;
+        }
+
+        .grade-title {
+            text-align: center;
+        }
+
+        .grade-letter {
+            border: 1px solid black;
+            border-radius: 10px;
+            margin: 15px auto;
+            height: 80px;
+            width: 80px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .Fbg {
+            background-color: #d33c43;
+        }
+
+        .Dbg {
+            background-color: #c4684c;
+        }
+
+        .Cbg {
+            background-color: #c9bb00;
+        }
+
+        .Bbg {
+            background-color: #4c94c4;
+        }
+
+        .Abg {
+            background-color: #259e5b;
+        }
+
+        .F {
+            -webkit-text-stroke: 0.2px black;
+            color: #d33c43;
+        }
+
+        .D {
+            -webkit-text-stroke: 0.2px black;
+            color: #c4684c;
+        }
+
+        .C {
+            -webkit-text-stroke: 0.2px black;
+            color: #c9bb00;
+        }
+
+        .B {
+            -webkit-text-stroke: 0.2px black;
+            color: #4c94c4;
+        }
+
+        .A {
+            -webkit-text-stroke: 0.2px black;
+            color: #259e5b;
+        }
+
+        .grade-letter h5 {
+            font-size: 55px;
+            line-height: 70px;
+            margin: 0;
+            color: white;
+        }
+
+        .grade-letter p {
+            margin: -10px 0 0 0;
+            color: white;
+        }
+
+        .grade-scale {
+            margin: 15px auto 0 auto;
+            width: 60px;
+        }
+
+        .grade-scale p {
+            font-size: 14px;
+            margin: 0;
+            color: rgba(10, 10, 10, 0.7);
+        }
+
+        .result-matrix {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .matrix-title {
+            font-size: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            display: flex;
+        }
+
+        .matrix-title>h4 {
+            align-self: flex-end;
+            margin-left: 25px;
+        }
+
+        .title-key {
+            align-self: flex-end;
+            margin-left: auto;
+            display: flex;
+        }
+
+        .title-key>p {
+            margin-right: 20px;
+        }
+
+        .title-key .location-result {
+            align-self: center;
+        }
+
+        .matrix-header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            border-bottom: 1px solid;
+        }
+
+        .matrix-body {
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        .test-set {
+            display: flex;
+        }
+
+        .test-set-title {
+            padding-bottom: 20px;
+            text-align: center;
+        }
+
+        .header-row {
+            display: flex;
+        }
+
+        .line-payload {
+            display: flex;
+            flex-grow: 3;
+            max-width: 600px;
+            min-width: 600px;
+            margin-right: 10px;
+        }
+
+        .line {
+            flex-grow: 1;
+            max-width: 50px;
+            min-width: 50px;
+            line-height: 36px;
+        }
+
+        .payload {
+            flex-grow: 2;
+            overflow: hidden;
+            max-width: 550px;
+            line-height: 36px;
+        }
+
+        .file-row {
+            background-color: rgba(0, 0, 0, .125);
+            padding: 5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .location-wrapper {
+            max-width: 200px;
+            min-width: 200px;
+            margin: 0 10px;
+            flex-grow: 2;
+        }
+
+        .set-locations {
+            display: flex;
+        }
+
+        .result-row {
+            display: flex;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+        }
+
+        .location-header {
+            width: 15px;
+            padding: 5px;
+            margin: 0 5px;
+        }
+
+        .rotate {
+            -webkit-transform: translate(0px, 5px) rotate(315deg);
+            -moz-transform: translate(0px, 5px) rotate(315deg);
+            -ms-transform: translate(0px, 5px) rotate(315deg);
+            -o-transform: translate(0px, 5px) rotate(315deg);
+            transform: translate(0px, 5px) rotate(315deg);
+            -webkit-transform-origin: 0 0;
+            -moz-transform-origin: 0 0;
+            -ms-transform-origin: 0 0;
+            -o-transform-origin: 0 0;
+            transform-origin: 0 0;
+        }
+
+        .location-result {
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            width: 15px;
+            height: 15px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .pass {
+            background-color: #259e5b;
+        }
+
+        .pass::before {
+            content: '\2713';
+            color: white;
+        }
+
+        .fail {
+            background-color: #d33c43;
+        }
+
+        .fail::before {
+            content: '\2715';
+            color: white;
+        }
+
+        .invalid {
+            background-color: #7e7e7e;
+        }
+
+        .invalid::before {
+            content: '\2013';
+            color: white;
+        }
+
+        .error {
+            background-color: #dbb60f;
+        }
+
+        .error::before {
+            content: '\0021';
+            color: black;
+        }
+
+        pre {
+            margin: 0;
+        }
+    </style>
+</HEAD>
+
+<BODY>
+    <div class="container">
+        <div class="report-header">
+            <div class="report-title">
+                <h1>WAF Testing Report - Summary</h1>
+            </div>
+            <div class="scan-time">
+                <h4>Test Start: </h4>
+                <h4>Test End: </h4>
+            </div>
+        </div>
+        <div class="results">
+            <div class="result">
+                <div class="result-title">
+                    Test1
+                </div>
+                <div class="result-summary">
+                    <div class="grade">
+                        <div class="grade-title">Overall Rating</div>
+                        <div class="grade-letter Fbg">
+                            <h5>F</h5>
+                            <p>50%</p>
+                        </div>
+                        <div class="grade-scale">
+                            <p>A: 0-1%</p>
+                            <p>B: 1-2%</p>
+                            <p>C: 2-3%</p>
+                            <p>D: 3-4%</p>
+                            <p>F: 4%+</p>
+                        </div>
+                    </div>
+                    <div class="chart">
+                        <div class="chart-title">
+                            Total Errors: 0 | Total Invalid Tests: 1 | Total Valid Tests: 2
+                        </div>
+                        <div class="chart-graph">
+                            <div class="chart-lines">
+                                <div class="chart-line l-0">
+                                    <span class="chart-line-label">0%</span>
+                                </div>
+                                <div class="chart-line l-20">
+                                    <span class="chart-line-label">1%</span>
+                                </div>
+                                <div class="chart-line l-40">
+                                    <span class="chart-line-label">2%</span>
+                                </div>
+                                <div class="chart-line l-60">
+                                    <span class="chart-line-label">3%</span>
+                                </div>
+                                <div class="chart-line l-80">
+                                    <span class="chart-line-label">4%</span>
+                                </div>
+                                <div class="chart-line l-100">
+                                    <span class="chart-line-label">5%</span>
+                                </div>
+                            </div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Positives</div>
+                                <span class="chart-bar-metric">1/0 (100%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 100%;"></div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Negatives</div>
+                                <span class="chart-bar-metric">0/0 (0%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 0.5%;"></div>
+                        </div>
+                        <div class="chart-text">
+                            <p>WAF False Positives incorrectly blocked <span class="F" style="font-weight: bolder;">100%</span> of test payloads.</p>
+                            <p>WAF False Negatives incorrectly allowed <span class="F" style="font-weight: bolder;">0%</span> of test payloads.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-title">
+                    Test2
+                </div>
+                <div class="result-summary">
+                    <div class="grade">
+                        <div class="grade-title">Overall Rating</div>
+                        <div class="grade-letter Abg">
+                            <h5>A</h5>
+                            <p>0%</p>
+                        </div>
+                        <div class="grade-scale">
+                            <p>A: 0-1%</p>
+                            <p>B: 1-2%</p>
+                            <p>C: 2-3%</p>
+                            <p>D: 3-4%</p>
+                            <p>F: 4%+</p>
+                        </div>
+                    </div>
+                    <div class="chart">
+                        <div class="chart-title">
+                            Total Errors: 0 | Total Invalid Tests: 0 | Total Valid Tests: 2
+                        </div>
+                        <div class="chart-graph">
+                            <div class="chart-lines">
+                                <div class="chart-line l-0">
+                                    <span class="chart-line-label">0%</span>
+                                </div>
+                                <div class="chart-line l-20">
+                                    <span class="chart-line-label">1%</span>
+                                </div>
+                                <div class="chart-line l-40">
+                                    <span class="chart-line-label">2%</span>
+                                </div>
+                                <div class="chart-line l-60">
+                                    <span class="chart-line-label">3%</span>
+                                </div>
+                                <div class="chart-line l-80">
+                                    <span class="chart-line-label">4%</span>
+                                </div>
+                                <div class="chart-line l-100">
+                                    <span class="chart-line-label">5%</span>
+                                </div>
+                            </div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Positives</div>
+                                <span class="chart-bar-metric">0/0 (0%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 0.5%;"></div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Negatives</div>
+                                <span class="chart-bar-metric">0/0 (0%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 0.5%;"></div>
+                        </div>
+                        <div class="chart-text">
+                            <p>WAF False Positives incorrectly blocked <span class="A" style="font-weight: bolder;">0%</span> of test payloads.</p>
+                            <p>WAF False Negatives incorrectly allowed <span class="A" style="font-weight: bolder;">0%</span> of test payloads.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-title">
+                    Test3
+                </div>
+                <div class="result-summary">
+                    <div class="grade">
+                        <div class="grade-title">Overall Rating</div>
+                        <div class="grade-letter Fbg">
+                            <h5>F</h5>
+                            <p>50%</p>
+                        </div>
+                        <div class="grade-scale">
+                            <p>A: 0-1%</p>
+                            <p>B: 1-2%</p>
+                            <p>C: 2-3%</p>
+                            <p>D: 3-4%</p>
+                            <p>F: 4%+</p>
+                        </div>
+                    </div>
+                    <div class="chart">
+                        <div class="chart-title">
+                            Total Errors: 0 | Total Invalid Tests: 0 | Total Valid Tests: 2
+                        </div>
+                        <div class="chart-graph">
+                            <div class="chart-lines">
+                                <div class="chart-line l-0">
+                                    <span class="chart-line-label">0%</span>
+                                </div>
+                                <div class="chart-line l-20">
+                                    <span class="chart-line-label">1%</span>
+                                </div>
+                                <div class="chart-line l-40">
+                                    <span class="chart-line-label">2%</span>
+                                </div>
+                                <div class="chart-line l-60">
+                                    <span class="chart-line-label">3%</span>
+                                </div>
+                                <div class="chart-line l-80">
+                                    <span class="chart-line-label">4%</span>
+                                </div>
+                                <div class="chart-line l-100">
+                                    <span class="chart-line-label">5%</span>
+                                </div>
+                            </div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Positives</div>
+                                <span class="chart-bar-metric">1/0 (50%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 100%;"></div>
+                            <div class="chart-bar-label">
+                                <div class="chart-bar-title">False Negatives</div>
+                                <span class="chart-bar-metric">0/0 (0%)</span>
+                            </div>
+                            <div class="chart-bar" style="width: 0.5%;"></div>
+                        </div>
+                        <div class="chart-text">
+                            <p>WAF False Positives incorrectly blocked <span class="F" style="font-weight: bolder;">50%</span> of test payloads.</p>
+                            <p>WAF False Negatives incorrectly allowed <span class="F" style="font-weight: bolder;">0%</span> of test payloads.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="result-matrix">
+            <div class="matrix-title">
+                <h2>Failed Results Breakdown</h2>
+                <h4><a href="./details.html">Go To Details</a></h4>
+                <div class="title-key">
+                    <p>Test Result Key: </p>
+                    <div class="location-result pass"></div>
+                    <p>- Pass</p>
+                    <div class="location-result fail"></div>
+                    <p>- Fail</p>
+                    <div class="location-result invalid"></div>
+                    <p>- Invalid</p>
+                    <div class="location-result error"></div>
+                    <p>- Error</p>
+                </div>
+            </div>
+            <div class="matrix-body">
+                <div class="matrix-header">
+                    <div class="test-set">
+                        <div class="line-payload"></div>
+                        <div class="location-wrapper">
+                            <div class="test-set-title">
+                                <h3>Test1</h3>
+                            </div>
+                        </div>
+                        <div class="location-wrapper">
+                            <div class="test-set-title">
+                                <h3>Test2</h3>
+                            </div>
+                        </div>
+                        <div class="location-wrapper">
+                            <div class="test-set-title">
+                                <h3>Test3</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-row">
+                        <div class="line-payload">
+                            <div class="line">Line</div>
+                            <div class="payload">Payload</div>
+                        </div>
+                        <div class="location-wrapper">
+                            <div class="set-locations">
+                                <div class="location-header rotate">body</div>
+                                <div class="location-header rotate">header</div>
+                            </div>
+                        </div>
+                        <div class="location-wrapper">
+                            <div class="set-locations">
+                                <div class="location-header rotate">body</div>
+                                <div class="location-header rotate">header</div>
+                            </div>
+                        </div>
+                        <div class="location-wrapper">
+                            <div class="set-locations">
+                                <div class="location-header rotate">body</div>
+                                <div class="location-header rotate">header</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-row file-row">
+                    File: false_positives/fp.txt
+                </div>
+                <div class="result-row">
+                    <div class="line-payload">
+                        <div class="line"> 1 </div>
+                        <div class="payload">
+                            <pre>LOCK AND KEY</pre>
+                        </div>
+                    </div>
+                    <div class="location-wrapper">
+                        <div class="set-locations">
+                            <div class="location-result invalid"> </div>
+                            <div class="location-result fail"> </div>
+                        </div>
+                    </div>
+                    <div class="location-wrapper">
+                        <div class="set-locations">
+                            <div class="location-result pass"> </div>
+                            <div class="location-result pass"> </div>
+                        </div>
+                    </div>
+                    <div class="location-wrapper">
+                        <div class="set-locations">
+                            <div class="location-result pass"> </div>
+                            <div class="location-result fail"> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</BODY>
+
+</HTML>

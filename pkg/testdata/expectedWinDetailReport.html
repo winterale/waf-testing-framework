@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
+    <script type="text/javascript">
+        document.addEventListener('click', function (event) {
+            if (!event.target.matches('.toggle')) return;
+            event.preventDefault();
+            event.target.classList.toggle("collapse")
+            let elem = (event.target.nextElementSibling)
+            elem.classList.toggle("hide")
+        }, false);
+    </script>
+    <TITLE>WAF Testing report</TITLE>
+    <style>
+        body {
+            min-width: 1000px;
+        }
+
+        .container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .configs {
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-title {
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            display: flex;
+        }
+
+        .config-body {
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .toggle:after {
+            content: "-" !important;
+            align-self: center;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+
+        .toggle.collapse:after {
+            content: '+' !important;
+            align-self: center;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .report-header h1 {
+            font-size: 36px;
+        }
+
+        .scan-time {
+            text-align: right;
+        }
+
+        .result {
+            width: 47%;
+            padding: 5px 10px;
+            margin: 5px;
+        }
+
+        .result-matrix {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .matrix-title {
+            font-size: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            display: flex;
+        }
+
+        .matrix-title>h4 {
+            align-self: flex-end;
+            margin-left: 25px;
+        }
+
+        .matrix-body {
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            max-width: 100%;
+            min-width: 100%;
+        }
+
+        .header-row {
+            display: flex;
+        }
+
+        pre {
+            margin: 0;
+        }
+
+        .resulttable {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .failed-locations {
+            margin-left: 50px;
+        }
+
+        .labelrow {
+            display: flex;
+            align-content: flex-start;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .resultlabel {
+            width: 50%;
+            margin: 0 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+        }
+
+        .wholerowlabel {
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            margin: 0 10px;
+        }
+
+        .resultrow {
+            display: flex;
+            justify-content: space-between;
+            overflow-wrap: anywhere;
+        }
+
+        .requestlabel {
+            width: 50%;
+        }
+
+        .responselabel {
+            width: 50%;
+        }
+
+        .wholerowresult {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .requestresult {
+            width: 50%;
+            margin: 0 10px;
+            overflow: auto;
+            padding: 10px 0;
+        }
+
+        .responseresult {
+            width: 50%;
+            margin: 0 10px;
+            overflow: auto;
+            padding: 10px 0;
+        }
+
+        .header-row {
+            background-color: #efefef;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .test-result {
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            margin: 10px;
+        }
+    </style>
+</HEAD>
+
+<BODY>
+    <div class="container">
+        <div class="report-header">
+            <div class="report-title">
+                <h1>WAF Testing Report - Details</h1>
+            </div>
+            <div class="scan-time">
+                <h4>Test Start: </h4>
+                <h4>Test End: </h4>
+            </div>
+        </div>
+        <div class="result-matrix">
+            <div class="configs">
+                <div class="config-title toggle collapse">
+                    <h2>Test Configurations</h2>
+                </div>
+                <div class="config-body hide">
+                    <pre>{
+  &#34;PayloadDir&#34;: &#34;&#34;,
+  &#34;URLEncodePath&#34;: false,
+  &#34;URLEncodeQuery&#34;: false,
+  &#34;URLEncodeHeader&#34;: false,
+  &#34;B64EncodeCookie&#34;: false,
+  &#34;PostBodyType&#34;: &#34;&#34;,
+  &#34;Locations&#34;: [
+    {
+      &#34;Location&#34;: &#34;header&#34;,
+      &#34;Key&#34;: &#34;foo&#34;
+    },
+    {
+      &#34;Location&#34;: &#34;body&#34;,
+      &#34;Key&#34;: &#34;bar&#34;
+    }
+  ],
+  &#34;TestSets&#34;: [
+    {
+      &#34;Name&#34;: &#34;Test1&#34;,
+      &#34;URI&#34;: &#34;&#34;,
+      &#34;DefaultHeaders&#34;: null,
+      &#34;AllowCondition&#34;: {
+        &#34;Code&#34;: 200,
+        &#34;Headers&#34;: null
+      },
+      &#34;BlockCondition&#34;: {
+        &#34;Code&#34;: 406,
+        &#34;Headers&#34;: null
+      }
+    },
+    {
+      &#34;Name&#34;: &#34;Test2&#34;,
+      &#34;URI&#34;: &#34;&#34;,
+      &#34;DefaultHeaders&#34;: null,
+      &#34;AllowCondition&#34;: {
+        &#34;Code&#34;: 201,
+        &#34;Headers&#34;: null
+      },
+      &#34;BlockCondition&#34;: {
+        &#34;Code&#34;: 403,
+        &#34;Headers&#34;: null
+      }
+    },
+    {
+      &#34;Name&#34;: &#34;Test3&#34;,
+      &#34;URI&#34;: &#34;&#34;,
+      &#34;DefaultHeaders&#34;: null,
+      &#34;AllowCondition&#34;: {
+        &#34;Code&#34;: 202,
+        &#34;Headers&#34;: null
+      },
+      &#34;BlockCondition&#34;: {
+        &#34;Code&#34;: 404,
+        &#34;Headers&#34;: null
+      }
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+            <div class="matrix-title">
+                <h2>Results Details</h2>
+                <h4><a href="./summary.html">Go To Summary</a></h4>
+            </div>
+            <div class="matrix-body">
+                <div class="resulttable">
+                    <div class="header-row">
+                        <div class="labelrow">
+                            <div class="resultlabel">
+                                File
+                            </div>
+                            <div class="resultlabel">
+                                Line
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="result">
+                                false_positives\fp.txt
+                            </div>
+                            <div class="result">
+                                1
+                            </div>
+                        </div>
+                        <div class="labelrow">
+                            <div class="wholerowlabel">
+                                Payload
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="wholerowresult">
+                                LOCK AND KEY
+                            </div>
+                        </div>
+                    </div>
+                    <div class="failed-locations">
+                        <div class="labelrow">
+                            <div class="wholerowlabel">
+                                WAF
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="wholerowresult">
+                                Test1
+                            </div>
+                        </div>
+                        <div class="failed-locations">
+                            <div class="test-result">
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Location
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Outcome
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="result">
+                                        body
+                                    </div>
+                                    <div class="result">
+                                        invalid
+                                    </div>
+                                </div>
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Request
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Invalid Reason
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="requestresult">
+                                        <pre>request</pre>
+                                    </div>
+                                    <div class="responseresult">
+                                        <pre>response</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="test-result">
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Location
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Outcome
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="result">
+                                        header
+                                    </div>
+                                    <div class="result">
+                                        falsePositive
+                                    </div>
+                                </div>
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Request
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Response
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="requestresult">
+                                        <pre>request</pre>
+                                    </div>
+                                    <div class="responseresult">
+                                        <pre>response</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="failed-locations">
+                        <div class="labelrow">
+                            <div class="wholerowlabel">
+                                WAF
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="wholerowresult">
+                                Test3
+                            </div>
+                        </div>
+                        <div class="failed-locations">
+                            <div class="test-result">
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Location
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Outcome
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="result">
+                                        header
+                                    </div>
+                                    <div class="result">
+                                        falsePositive
+                                    </div>
+                                </div>
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Request
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Response
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="requestresult">
+                                        <pre>request</pre>
+                                    </div>
+                                    <div class="responseresult">
+                                        <pre>response</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</BODY>
+
+</HTML>

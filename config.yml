@@ -1,0 +1,17 @@
+---
+urlencode_path: true
+urlencode_header: true
+urlencode_query: true
+b64encode_cookie: true
+postbody_type: urlencoded
+payload_dir: payloads
+wafs:
+  - name: WAF 1
+    protocol: HTTP
+    host: localhost
+    port: 80
+    path:
+    block_condition:
+      code: 406
+    allow_condition:
+      code: 200

@@ -1,0 +1,142 @@
+{
+  "StartTime": "",
+  "EndTime": "",
+  "Config": {
+    "PayloadDir": "",
+    "URLEncodePath": false,
+    "URLEncodeQuery": false,
+    "URLEncodeHeader": false,
+    "B64EncodeCookie": false,
+    "PostBodyType": "",
+    "Locations": [
+      {
+        "Location": "header",
+        "Key": "foo"
+      },
+      {
+        "Location": "body",
+        "Key": "bar"
+      }
+    ],
+    "TestSets": [
+      {
+        "Name": "Test1",
+        "URI": "",
+        "DefaultHeaders": null,
+        "AllowCondition": {
+          "Code": 200,
+          "Headers": null
+        },
+        "BlockCondition": {
+          "Code": 406,
+          "Headers": null
+        }
+      },
+      {
+        "Name": "Test2",
+        "URI": "",
+        "DefaultHeaders": null,
+        "AllowCondition": {
+          "Code": 201,
+          "Headers": null
+        },
+        "BlockCondition": {
+          "Code": 403,
+          "Headers": null
+        }
+      },
+      {
+        "Name": "Test3",
+        "URI": "",
+        "DefaultHeaders": null,
+        "AllowCondition": {
+          "Code": 202,
+          "Headers": null
+        },
+        "BlockCondition": {
+          "Code": 404,
+          "Headers": null
+        }
+      }
+    ]
+  },
+  "SetCounts": {
+    "Test1": {
+      "FpCount": 1,
+      "FpPercent": 100,
+      "FnCount": 0,
+      "FnPercent": 0,
+      "InvCount": 1,
+      "ErrCount": 0,
+      "PassedCount": 0,
+      "FailPercent": 50,
+      "TotalFPTestCount": 0,
+      "TotalFNTestCount": 0,
+      "TotalCount": 2
+    },
+    "Test2": {
+      "FpCount": 0,
+      "FpPercent": 0,
+      "FnCount": 0,
+      "FnPercent": 0,
+      "InvCount": 0,
+      "ErrCount": 0,
+      "PassedCount": 2,
+      "FailPercent": 0,
+      "TotalFPTestCount": 0,
+      "TotalFNTestCount": 0,
+      "TotalCount": 2
+    },
+    "Test3": {
+      "FpCount": 1,
+      "FpPercent": 50,
+      "FnCount": 0,
+      "FnPercent": 0,
+      "InvCount": 0,
+      "ErrCount": 0,
+      "PassedCount": 1,
+      "FailPercent": 50,
+      "TotalFPTestCount": 0,
+      "TotalFNTestCount": 0,
+      "TotalCount": 2
+    }
+  },
+  "FileResults": {
+    "false_positives/fp.txt": {
+      "PayloadResults": {
+        "1": {
+          "Line": 1,
+          "Payload": "LOCK AND KEY",
+          "SetResults": {
+            "Test1": {
+              "Locations": {
+                "body": {
+                  "Outcome": "invalid",
+                  "Request": "request",
+                  "Response": "response"
+                },
+                "header": {
+                  "Outcome": "falsePositive",
+                  "Request": "request",
+                  "Response": "response"
+                }
+              }
+            },
+            "Test3": {
+              "Locations": {
+                "header": {
+                  "Outcome": "falsePositive",
+                  "Request": "request",
+                  "Response": "response"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Reporting": {
+    "OutputDir": "../testdata"
+  }
+}

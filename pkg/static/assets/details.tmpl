@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
+    <script type="text/javascript">
+        document.addEventListener('click', function (event) {
+            if (!event.target.matches('.toggle')) return;
+            event.preventDefault();
+            event.target.classList.toggle("collapse")
+            let elem = (event.target.nextElementSibling)
+            elem.classList.toggle("hide")
+        }, false);
+    </script>
+    <TITLE>WAF Testing report</TITLE>
+    <style>
+        body {
+            min-width: 1000px;
+        }
+
+        .container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .configs {
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-title {
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            display: flex;
+        }
+
+        .config-body {
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .toggle:after {
+            content: "-" !important;
+            align-self: center;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+
+        .toggle.collapse:after {
+            content: '+' !important;
+            align-self: center;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .report-header h1 {
+            font-size: 36px;
+        }
+
+        .scan-time {
+            text-align: right;
+        }
+
+        .result {
+            width: 47%;
+            padding: 5px 10px;
+            margin: 5px;
+        }
+
+        .result-matrix {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .matrix-title {
+            font-size: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            display: flex;
+        }
+
+        .matrix-title>h4 {
+            align-self: flex-end;
+            margin-left: 25px;
+        }
+
+        .matrix-body {
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            max-width: 100%;
+            min-width: 100%;
+        }
+
+        .header-row {
+            display: flex;
+        }
+
+        pre {
+            margin: 0;
+        }
+
+        .resulttable {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .failed-locations {
+            margin-left: 50px;
+        }
+
+        .labelrow {
+            display: flex;
+            align-content: flex-start;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .resultlabel {
+            width: 50%;
+            margin: 0 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+        }
+
+        .wholerowlabel {
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 0, 0, .325);
+            margin: 0 10px;
+        }
+
+        .resultrow {
+            display: flex;
+            justify-content: space-between;
+            overflow-wrap: anywhere;
+        }
+
+        .requestlabel {
+            width: 50%;
+        }
+
+        .responselabel {
+            width: 50%;
+        }
+
+        .wholerowresult {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .requestresult {
+            width: 50%;
+            margin: 0 10px;
+            overflow: auto;
+            padding: 10px 0;
+        }
+
+        .responseresult {
+            width: 50%;
+            margin: 0 10px;
+            overflow: auto;
+            padding: 10px 0;
+        }
+
+        .header-row {
+            background-color: #efefef;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .test-result {
+            border: 1px solid rgba(0, 0, 0, .325);
+            border-radius: 10px;
+            margin: 10px;
+        }
+    </style>
+</HEAD>
+
+<BODY>
+    <div class="container">
+        <div class="report-header">
+            <div class="report-title">
+                <h1>WAF Testing Report - Details</h1>
+            </div>
+            <div class="scan-time">
+                <h4>Test Start: {{.Report.Results.StartTime}}</h4>
+                <h4>Test End: {{.Report.Results.EndTime}}</h4>
+            </div>
+        </div>
+        <div class="result-matrix">
+            <div class="configs">
+                <div class="config-title toggle collapse">
+                    <h2>Test Configurations</h2>
+                </div>
+                <div class="config-body hide">
+                    <pre>{{.Report.Config}}</pre>
+                </div>
+            </div>
+            <div class="matrix-title">
+                <h2>Results Details</h2>
+                <h4><a href="./summary.html">Go To Summary</a></h4>
+            </div>
+            <div class="matrix-body">
+                {{range $fileName, $file := $.Report.Results.FileResults -}}
+                {{range $line, $results := $file.PayloadResults -}}
+                <div class="resulttable">
+                    <div class="header-row">
+                        <div class="labelrow">
+                            <div class="resultlabel">
+                                File
+                            </div>
+                            <div class="resultlabel">
+                                Line
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="result">
+                                {{$fileName}}
+                            </div>
+                            <div class="result">
+                                {{$results.Line}}
+                            </div>
+                        </div>
+                        <div class="labelrow">
+                            <div class="wholerowlabel">
+                                Payload
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="wholerowresult">
+                                {{$results.Payload}}
+                            </div>
+                        </div>
+                    </div>
+                    {{range $setName, $locations := $results.SetResults -}}
+                    <div class="failed-locations">
+                        <div class="labelrow">
+                            <div class="wholerowlabel">
+                                WAF
+                            </div>
+                        </div>
+                        <div class="resultrow">
+                            <div class="wholerowresult">
+                                {{$setName}}
+                            </div>
+                        </div>
+                        <div class="failed-locations">
+                            {{range $testResult := $locations.Locations -}}
+                            <div class="test-result">
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Location
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        Outcome
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="result">
+                                        {{$testResult.Location}}
+                                    </div>
+                                    <div class="result">
+                                        {{$testResult.Outcome}}
+                                    </div>
+                                </div>
+                                <div class="labelrow">
+                                    <div class="resultlabel requestlabel">
+                                        Request
+                                    </div>
+                                    <div class="resultlabel responselabel">
+                                        {{if eq $testResult.Outcome "invalid" -}}
+                                        Invalid Reason
+                                        {{else -}}
+                                        Response
+                                        {{end -}}
+                                    </div>
+                                </div>
+                                <div class="resultrow">
+                                    <div class="requestresult">
+                                        <pre>{{$testResult.Request | html}}</pre>
+                                    </div>
+                                    <div class="responseresult">
+                                        <pre>{{$testResult.Response | html}}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            {{end -}}
+                        </div>
+                    </div>
+                    {{end -}}
+                </div>
+                {{end -}}
+                {{end -}}
+            </div>
+        </div>
+</BODY>
+
+</HTML>

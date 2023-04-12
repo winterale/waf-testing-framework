@@ -1,0 +1,35 @@
+---
+payload_dir: ../testdata/payloads
+payload_locations:
+  - location: body
+    key: Bar
+    encoded: false
+  - location: header
+    key: foobar
+    encoded: false
+wafs:
+  - name: Defaults
+  - name: Custom
+    protocol: HTTPS
+    host: "10.10.10.10"
+    port: 4000
+    path: /foobar
+    default_headers:
+      - header: Content-Type
+        value: application/json
+      - header: User-Agent
+        value: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+    block_condition:
+      code: 403
+      headers:
+        - header: Foo
+          value: bar
+        - header: Lorem
+          value: Ipsum
+    allow_condition:
+      code: 201
+      headers:
+        - header: Foo
+          value: bar
+        - header: Lorem
+          value: Ipsum
