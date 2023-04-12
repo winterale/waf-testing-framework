@@ -1,4 +1,4 @@
-![tests](https://github.com/signalsciences/waf-testing-framework/workflows/tests/badge.svg)
+This repository is a clone of one from Signal Sciences which is no longer available. 
 # WAF Testing Framework
 WAF Testing Framework is a tool designed to test the effectiveness of WAF and RASP tools in their ability to filter request traffic between an HTTP/S client and server. Test payloads are taken from text files in a specified directory, transformed to HTTP-requests, and sent to specified address (IP or hostname). Results are recorded and presented in both JSON and HTML report formats.
 
